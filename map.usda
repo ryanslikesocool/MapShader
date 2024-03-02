@@ -11,7 +11,7 @@ def Xform "Root"
     def "cylinder_geometry_only" (
         active = true
         prepend apiSchemas = ["MaterialBindingAPI"]
-        references = @cylinder geometry only.usdc@
+        references = @cylinder.usdc@
     )
     {
         rel material:binding = </Root/map_material> (
