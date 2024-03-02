@@ -7,24 +7,55 @@
 
 def Xform "Root"
 {
-    reorder nameChildren = ["map_material", "cylinder"]
-    def "cylinder_geometry_only" (
-        active = true
-        prepend apiSchemas = ["MaterialBindingAPI"]
-        references = @cylinder.usdc@
-    )
-    {
-        rel material:binding = </Root/map_material> (
-            bindMaterialAs = "weakerThanDescendants"
-        )
-        quatf xformOp:orient = (1, 0, 0, 0)
-        float3 xformOp:scale = (1, 1, 1)
-        float3 xformOp:translate = (0, 0, 0)
-        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
-    }
-
+    reorder nameChildren = ["cylinder", "map_material"]
     def Material "map_material"
     {
+        float inputs:HeightOffset = -0.5 (
+            customData = {
+                dictionary realitykit = {
+                    float2 positionInSubgraph = (-558.64465, -231.94974)
+                    float2 sizeInSubgraph = (148.5, 53)
+                    int stackingOrderInSubgraph = 1570
+                }
+            }
+        )
+        float inputs:HeightScale = 1 (
+            customData = {
+                dictionary realitykit = {
+                    float2 positionInSubgraph = (-310.40234, 337.1914)
+                    float2 sizeInSubgraph = (143.5, 53)
+                    int stackingOrderInSubgraph = 1569
+                }
+            }
+        )
+        float inputs:Scale = 0.2 (
+            customData = {
+                dictionary realitykit = {
+                    float2 positionInSubgraph = (-1079.6172, 192.01172)
+                    float2 sizeInSubgraph = (102, 53)
+                    int stackingOrderInSubgraph = 1569
+                }
+            }
+        )
+        color3f inputs:SideColor = (1, 0, 0) (
+            colorSpace = "lin_srgb"
+            customData = {
+                dictionary realitykit = {
+                    float2 positionInSubgraph = (189.85938, -485.35938)
+                    float2 sizeInSubgraph = (133, 53)
+                    int stackingOrderInSubgraph = 1568
+                }
+            }
+        )
+        asset inputs:Texture = @noise_combo.png@ (
+            customData = {
+                dictionary realitykit = {
+                    float2 positionInSubgraph = (-756.2539, 37.61328)
+                    float2 sizeInSubgraph = (115.5, 53)
+                    int stackingOrderInSubgraph = 1568
+                }
+            }
+        )
         token outputs:mtlx:surface.connect = </Root/map_material/PreviewSurface.outputs:out>
         token outputs:realitykit:vertex.connect = </Root/map_material/GeometryModifier.outputs:out>
         float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1071.498, 34.825893)
@@ -83,37 +114,12 @@ def Xform "Root"
         def Shader "SeparateRGB"
         {
             uniform token info:id = "ND_separate3_color3"
-            color3f inputs:in.connect = </Root/map_material/MapTextureSampler.outputs:out>
+            color3f inputs:in.connect = </Root/map_material/TextureSampler.outputs:out>
             float outputs:outb
             float outputs:outg
             float outputs:outr
             float2 ui:nodegraph:node:pos = (-317.21536, 214.25217)
             float2 ui:nodegraph:node:size = (134, 145)
-            int ui:nodegraph:node:stackingOrder = 1491
-        }
-
-        def Shader "MapTexture"
-        {
-            uniform token info:id = "ND_constant_filename"
-            asset inputs:value = @noise_combo.png@
-            asset outputs:out
-            float2 ui:nodegraph:node:pos = (-746.87463, 46.70288)
-            float2 ui:nodegraph:node:size = (158, 53)
-            int ui:nodegraph:node:stackingOrder = 1567
-        }
-
-        def Shader "MapTextureSampler"
-        {
-            uniform token info:id = "ND_image_color3"
-            color3f inputs:default
-            asset inputs:file.connect = </Root/map_material/MapTexture.outputs:out>
-            string inputs:filtertype
-            float2 inputs:texcoord.connect = </Root/map_material/Multiply_2.outputs:out>
-            string inputs:uaddressmode
-            string inputs:vaddressmode
-            color3f outputs:out
-            float2 ui:nodegraph:node:pos = (-564.2184, 79.11303)
-            float2 ui:nodegraph:node:size = (175.5, 199)
             int ui:nodegraph:node:stackingOrder = 1491
         }
 
@@ -165,20 +171,10 @@ def Xform "Root"
         {
             uniform token info:id = "ND_multiply_float"
             float inputs:in1.connect = </Root/map_material/SeparateRGB.outputs:outg>
-            float inputs:in2.connect = </Root/map_material/MapHeightScale.outputs:out>
+            float inputs:in2.connect = </Root/map_material.inputs:HeightScale>
             float outputs:out
             float2 ui:nodegraph:node:pos = (-153.48358, 247.96017)
             float2 ui:nodegraph:node:size = (60, 36)
-            int ui:nodegraph:node:stackingOrder = 1491
-        }
-
-        def Shader "MapHeightScale"
-        {
-            uniform token info:id = "ND_constant_float"
-            float inputs:value = 1
-            float outputs:out
-            float2 ui:nodegraph:node:pos = (-362.3078, 341.8547)
-            float2 ui:nodegraph:node:size = (187, 53)
             int ui:nodegraph:node:stackingOrder = 1491
         }
 
@@ -193,34 +189,14 @@ def Xform "Root"
             int ui:nodegraph:node:stackingOrder = 1491
         }
 
-        def Shader "MapScale"
-        {
-            uniform token info:id = "ND_constant_float"
-            float inputs:value = 0.2
-            float outputs:out
-            float2 ui:nodegraph:node:pos = (-1094.6426, 181.97623)
-            float2 ui:nodegraph:node:size = (146, 53)
-            int ui:nodegraph:node:stackingOrder = 1491
-        }
-
         def Shader "Swizzle"
         {
             uniform token info:id = "ND_swizzle_float_vector2"
             string inputs:channels = "xx"
-            prepend float inputs:in.connect = </Root/map_material/MapScale.outputs:out>
+            float inputs:in.connect = </Root/map_material.inputs:Scale>
             float2 outputs:out
             float2 ui:nodegraph:node:pos = (-921.231, 193.637)
             float2 ui:nodegraph:node:size = (133.5, 40)
-            int ui:nodegraph:node:stackingOrder = 1491
-        }
-
-        def Shader "MapHeightOffset"
-        {
-            uniform token info:id = "ND_constant_float"
-            float inputs:value = -0.5
-            float outputs:out
-            float2 ui:nodegraph:node:pos = (-593.2553, -219.41876)
-            float2 ui:nodegraph:node:size = (192, 53)
             int ui:nodegraph:node:stackingOrder = 1491
         }
 
@@ -238,7 +214,7 @@ def Xform "Root"
         def Shader "Multiply_4"
         {
             uniform token info:id = "ND_multiply_float"
-            float inputs:in1.connect = </Root/map_material/MapHeightOffset.outputs:out>
+            float inputs:in1.connect = </Root/map_material.inputs:HeightOffset>
             float inputs:in2.connect = </Root/map_material/SeparateY.outputs:outy>
             float outputs:out
             float2 ui:nodegraph:node:pos = (-388.90677, -182.62294)
@@ -270,24 +246,12 @@ def Xform "Root"
         def Shader "Mix"
         {
             uniform token info:id = "ND_mix_color3"
-            color3f inputs:bg.connect = </Root/map_material/MapTextureSampler.outputs:out>
-            color3f inputs:fg.connect = </Root/map_material/Constant.outputs:out>
+            color3f inputs:bg.connect = </Root/map_material/TextureSampler.outputs:out>
+            color3f inputs:fg.connect = </Root/map_material.inputs:SideColor>
             prepend float inputs:mix.connect = </Root/map_material/Step.outputs:out>
             color3f outputs:out
             float2 ui:nodegraph:node:pos = (422.28848, -346.27304)
             float2 ui:nodegraph:node:size = (109, 145)
-            int ui:nodegraph:node:stackingOrder = 1412
-        }
-
-        def Shader "Constant"
-        {
-            uniform token info:id = "ND_constant_color3"
-            color3f inputs:value = (1, 0, 0) (
-                colorSpace = "lin_srgb"
-            )
-            color3f outputs:out
-            float2 ui:nodegraph:node:pos = (165.1557, -455.1179)
-            float2 ui:nodegraph:node:size = (151, 53)
             int ui:nodegraph:node:stackingOrder = 1412
         }
 
@@ -319,6 +283,36 @@ def Xform "Root"
             float2 ui:nodegraph:node:size = (115.5, 163)
             int ui:nodegraph:node:stackingOrder = 1564
         }
+
+        def Shader "TextureSampler"
+        {
+            uniform token info:id = "ND_image_color3"
+            color3f inputs:default
+            asset inputs:file.connect = </Root/map_material.inputs:Texture>
+            string inputs:filtertype
+            float2 inputs:texcoord.connect = </Root/map_material/Multiply_2.outputs:out>
+            string inputs:uaddressmode
+            string inputs:vaddressmode
+            color3f outputs:out
+            float2 ui:nodegraph:node:pos = (-564.2184, 79.11303)
+            float2 ui:nodegraph:node:size = (150, 199)
+            int ui:nodegraph:node:stackingOrder = 1569
+        }
+    }
+
+    def "cylinder" (
+        active = true
+        prepend apiSchemas = ["MaterialBindingAPI"]
+        references = @cylinder.usdc@
+    )
+    {
+        rel material:binding = </Root/map_material> (
+            bindMaterialAs = "weakerThanDescendants"
+        )
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        float3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
     }
 }
 
