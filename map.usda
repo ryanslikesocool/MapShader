@@ -1,0 +1,324 @@
+#usda 1.0
+(
+    defaultPrim = "Root"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Root"
+{
+    reorder nameChildren = ["map_material", "cylinder"]
+    def "cylinder_geometry_only" (
+        active = true
+        prepend apiSchemas = ["MaterialBindingAPI"]
+        references = @cylinder geometry only.usdc@
+    )
+    {
+        rel material:binding = </Root/map_material> (
+            bindMaterialAs = "weakerThanDescendants"
+        )
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        float3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+    }
+
+    def Material "map_material"
+    {
+        token outputs:mtlx:surface.connect = </Root/map_material/PreviewSurface.outputs:out>
+        token outputs:realitykit:vertex.connect = </Root/map_material/GeometryModifier.outputs:out>
+        float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (1071.498, 34.825893)
+        float2 ui:nodegraph:realitykit:subgraphOutputs:size = (181.5, 99)
+        int ui:nodegraph:realitykit:subgraphOutputs:stackingOrder = 1360
+
+        def Shader "PreviewSurface"
+        {
+            uniform token info:id = "ND_UsdPreviewSurface_surfaceshader"
+            color3f inputs:diffuseColor.connect = </Root/map_material/Mix.outputs:out>
+            float inputs:metallic
+            float3 inputs:normal
+            float inputs:opacity
+            float inputs:roughness
+            token outputs:out
+            float2 ui:nodegraph:node:pos = (682.9913, -144.25722)
+            float2 ui:nodegraph:node:size = (148.5, 199)
+            int ui:nodegraph:node:stackingOrder = 1276
+            string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["inputs:diffuseColor"]
+        }
+
+        def Shader "GeometryModifier"
+        {
+            uniform token info:id = "ND_realitykit_geometrymodifier_vertexshader"
+            float3 inputs:bitangent
+            color4f inputs:color
+            float3 inputs:modelPositionOffset.connect = </Root/map_material/CombinePosition.outputs:out>
+            float3 inputs:normal
+            float4 inputs:userAttribute.connect = </Root/map_material/CombineY.outputs:out>
+            half2 inputs:userAttributeHalf2_0
+            half2 inputs:userAttributeHalf2_1
+            half4 inputs:userAttributeHalf4_0
+            half4 inputs:userAttributeHalf4_1
+            half4 inputs:userAttributeHalf4_2
+            half4 inputs:userAttributeHalf4_3
+            float2 inputs:uv0
+            float2 inputs:uv1
+            token outputs:out
+            float2 ui:nodegraph:node:pos = (606.92554, 232.58511)
+            float2 ui:nodegraph:node:size = (196.5, 325)
+            int ui:nodegraph:node:stackingOrder = 1494
+        }
+
+        def Shader "CombinePosition"
+        {
+            uniform token info:id = "ND_combine3_vector3"
+            float inputs:in1.connect = None
+            float inputs:in2.connect = </Root/map_material/Add.outputs:out>
+            float inputs:in3.connect = None
+            float3 outputs:out
+            float2 ui:nodegraph:node:pos = (264.47052, 134.07831)
+            float2 ui:nodegraph:node:size = (186.5, 54)
+            int ui:nodegraph:node:stackingOrder = 1496
+        }
+
+        def Shader "SeparateRGB"
+        {
+            uniform token info:id = "ND_separate3_color3"
+            color3f inputs:in.connect = </Root/map_material/MapTextureSampler.outputs:out>
+            float outputs:outb
+            float outputs:outg
+            float outputs:outr
+            float2 ui:nodegraph:node:pos = (-317.21536, 214.25217)
+            float2 ui:nodegraph:node:size = (134, 145)
+            int ui:nodegraph:node:stackingOrder = 1491
+        }
+
+        def Shader "MapTexture"
+        {
+            uniform token info:id = "ND_constant_filename"
+            asset inputs:value = @noise_combo.png@
+            asset outputs:out
+            float2 ui:nodegraph:node:pos = (-746.87463, 46.70288)
+            float2 ui:nodegraph:node:size = (158, 53)
+            int ui:nodegraph:node:stackingOrder = 1567
+        }
+
+        def Shader "MapTextureSampler"
+        {
+            uniform token info:id = "ND_image_color3"
+            color3f inputs:default
+            asset inputs:file.connect = </Root/map_material/MapTexture.outputs:out>
+            string inputs:filtertype
+            float2 inputs:texcoord.connect = </Root/map_material/Multiply_2.outputs:out>
+            string inputs:uaddressmode
+            string inputs:vaddressmode
+            color3f outputs:out
+            float2 ui:nodegraph:node:pos = (-564.2184, 79.11303)
+            float2 ui:nodegraph:node:size = (175.5, 199)
+            int ui:nodegraph:node:stackingOrder = 1491
+        }
+
+        def Shader "Multiply"
+        {
+            uniform token info:id = "ND_multiply_float"
+            float inputs:in1.connect = </Root/map_material/SeparateY.outputs:outy>
+            float inputs:in2.connect = </Root/map_material/Multiply_1.outputs:out>
+            float outputs:out
+            float2 ui:nodegraph:node:pos = (-33.27306, 203.0232)
+            float2 ui:nodegraph:node:size = (60, 36)
+            int ui:nodegraph:node:stackingOrder = 1491
+        }
+
+        def Shader "Position"
+        {
+            uniform token info:id = "ND_position_vector3"
+            float3 outputs:out
+            float2 ui:nodegraph:node:pos = (-1164.4132, 86.254875)
+            float2 ui:nodegraph:node:size = (133.5, 40)
+            int ui:nodegraph:node:stackingOrder = 1491
+            string[] ui:nodegraph:realitykit:node:attributesShowingChildren = ["outputs:out"]
+        }
+
+        def Shader "SwizzleXZ"
+        {
+            uniform token info:id = "ND_swizzle_vector3_vector2"
+            string inputs:channels = "xz"
+            prepend float3 inputs:in.connect = </Root/map_material/Position.outputs:out>
+            float2 outputs:out
+            float2 ui:nodegraph:node:pos = (-909.7041, 96.02921)
+            float2 ui:nodegraph:node:size = (150.5, 53)
+            int ui:nodegraph:node:stackingOrder = 1491
+        }
+
+        def Shader "SeparateY"
+        {
+            uniform token info:id = "ND_separate3_vector3"
+            float3 inputs:in.connect = </Root/map_material/Position.outputs:out>
+            float outputs:outx
+            float outputs:outy
+            float outputs:outz
+            float2 ui:nodegraph:node:pos = (-545.92883, -109.384834)
+            float2 ui:nodegraph:node:size = (114.5, 145)
+            int ui:nodegraph:node:stackingOrder = 1491
+        }
+
+        def Shader "Multiply_1"
+        {
+            uniform token info:id = "ND_multiply_float"
+            float inputs:in1.connect = </Root/map_material/SeparateRGB.outputs:outg>
+            float inputs:in2.connect = </Root/map_material/MapHeightScale.outputs:out>
+            float outputs:out
+            float2 ui:nodegraph:node:pos = (-153.48358, 247.96017)
+            float2 ui:nodegraph:node:size = (60, 36)
+            int ui:nodegraph:node:stackingOrder = 1491
+        }
+
+        def Shader "MapHeightScale"
+        {
+            uniform token info:id = "ND_constant_float"
+            float inputs:value = 1
+            float outputs:out
+            float2 ui:nodegraph:node:pos = (-362.3078, 341.8547)
+            float2 ui:nodegraph:node:size = (187, 53)
+            int ui:nodegraph:node:stackingOrder = 1491
+        }
+
+        def Shader "Multiply_2"
+        {
+            uniform token info:id = "ND_multiply_vector2"
+            float2 inputs:in1.connect = </Root/map_material/SwizzleXZ.outputs:out>
+            float2 inputs:in2.connect = </Root/map_material/Swizzle.outputs:out>
+            float2 outputs:out
+            float2 ui:nodegraph:node:pos = (-754.1101, 109.62313)
+            float2 ui:nodegraph:node:size = (60, 36)
+            int ui:nodegraph:node:stackingOrder = 1491
+        }
+
+        def Shader "MapScale"
+        {
+            uniform token info:id = "ND_constant_float"
+            float inputs:value = 0.2
+            float outputs:out
+            float2 ui:nodegraph:node:pos = (-1094.6426, 181.97623)
+            float2 ui:nodegraph:node:size = (146, 53)
+            int ui:nodegraph:node:stackingOrder = 1491
+        }
+
+        def Shader "Swizzle"
+        {
+            uniform token info:id = "ND_swizzle_float_vector2"
+            string inputs:channels = "xx"
+            prepend float inputs:in.connect = </Root/map_material/MapScale.outputs:out>
+            float2 outputs:out
+            float2 ui:nodegraph:node:pos = (-921.231, 193.637)
+            float2 ui:nodegraph:node:size = (133.5, 40)
+            int ui:nodegraph:node:stackingOrder = 1491
+        }
+
+        def Shader "MapHeightOffset"
+        {
+            uniform token info:id = "ND_constant_float"
+            float inputs:value = -0.5
+            float outputs:out
+            float2 ui:nodegraph:node:pos = (-593.2553, -219.41876)
+            float2 ui:nodegraph:node:size = (192, 53)
+            int ui:nodegraph:node:stackingOrder = 1491
+        }
+
+        def Shader "Add"
+        {
+            uniform token info:id = "ND_add_float"
+            float inputs:in1.connect = </Root/map_material/Multiply_4.outputs:out>
+            float inputs:in2.connect = </Root/map_material/Multiply.outputs:out>
+            float outputs:out
+            float2 ui:nodegraph:node:pos = (77.989044, 132.99098)
+            float2 ui:nodegraph:node:size = (61.5, 36.5)
+            int ui:nodegraph:node:stackingOrder = 1491
+        }
+
+        def Shader "Multiply_4"
+        {
+            uniform token info:id = "ND_multiply_float"
+            float inputs:in1.connect = </Root/map_material/MapHeightOffset.outputs:out>
+            float inputs:in2.connect = </Root/map_material/SeparateY.outputs:outy>
+            float outputs:out
+            float2 ui:nodegraph:node:pos = (-388.90677, -182.62294)
+            float2 ui:nodegraph:node:size = (60, 36)
+            int ui:nodegraph:node:stackingOrder = 1491
+        }
+
+        def Shader "Step"
+        {
+            uniform token info:id = "ND_realitykit_step_float"
+            float inputs:edge.connect = </Root/map_material/Separate4.outputs:outx>
+            float inputs:in.connect = </Root/map_material/StepThreshold.outputs:out>
+            float outputs:out
+            float2 ui:nodegraph:node:pos = (177.43869, -349.7029)
+            float2 ui:nodegraph:node:size = (129, 127)
+            int ui:nodegraph:node:stackingOrder = 1541
+        }
+
+        def Shader "StepThreshold"
+        {
+            uniform token info:id = "ND_constant_float"
+            float inputs:value = 0.999
+            float outputs:out
+            float2 ui:nodegraph:node:pos = (-21.24597, -353.6912)
+            float2 ui:nodegraph:node:size = (175, 53)
+            int ui:nodegraph:node:stackingOrder = 1566
+        }
+
+        def Shader "Mix"
+        {
+            uniform token info:id = "ND_mix_color3"
+            color3f inputs:bg.connect = </Root/map_material/MapTextureSampler.outputs:out>
+            color3f inputs:fg.connect = </Root/map_material/Constant.outputs:out>
+            prepend float inputs:mix.connect = </Root/map_material/Step.outputs:out>
+            color3f outputs:out
+            float2 ui:nodegraph:node:pos = (422.28848, -346.27304)
+            float2 ui:nodegraph:node:size = (109, 145)
+            int ui:nodegraph:node:stackingOrder = 1412
+        }
+
+        def Shader "Constant"
+        {
+            uniform token info:id = "ND_constant_color3"
+            color3f inputs:value = (1, 0, 0) (
+                colorSpace = "lin_srgb"
+            )
+            color3f outputs:out
+            float2 ui:nodegraph:node:pos = (165.1557, -455.1179)
+            float2 ui:nodegraph:node:size = (151, 53)
+            int ui:nodegraph:node:stackingOrder = 1412
+        }
+
+        def Shader "CombineY"
+        {
+            uniform token info:id = "ND_combine4_vector4"
+            prepend float inputs:in1.connect = </Root/map_material/SeparateY.outputs:outy>
+            float4 outputs:out
+            float2 ui:nodegraph:node:pos = (275.38123, 265.2602)
+            float2 ui:nodegraph:node:size = (144, 72)
+            int ui:nodegraph:node:stackingOrder = 1554
+        }
+
+        def Shader "SurfaceCustomAttribute"
+        {
+            uniform token info:id = "ND_realitykit_surface_custom_attribute"
+            float4 outputs:customAttribute
+            float2 ui:nodegraph:node:pos = (-206.14017, -266.84305)
+            float2 ui:nodegraph:node:size = (229, 81)
+            int ui:nodegraph:node:stackingOrder = 1565
+        }
+
+        def Shader "Separate4"
+        {
+            uniform token info:id = "ND_separate4_vector4"
+            float4 inputs:in.connect = </Root/map_material/SurfaceCustomAttribute.outputs:customAttribute>
+            float outputs:outx
+            float2 ui:nodegraph:node:pos = (-9.186696, -233.02275)
+            float2 ui:nodegraph:node:size = (115.5, 163)
+            int ui:nodegraph:node:stackingOrder = 1564
+        }
+    }
+}
+
