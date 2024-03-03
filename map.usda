@@ -303,7 +303,10 @@ def Xform "Root"
     def "cylinder" (
         active = true
         prepend apiSchemas = ["MaterialBindingAPI"]
-        references = @cylinder.usdc@
+        customData = {
+            float3 rotationEulerHint = (0, 0, 0)
+        }
+        prepend references = @cylinder.usdc@
     )
     {
         rel material:binding = </Root/map_material> (
